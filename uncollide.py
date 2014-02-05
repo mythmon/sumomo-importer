@@ -26,7 +26,7 @@ def main():
     kitsune_image_paths = set()
 
     for img in kitsune_images:
-        kitsune_image_title_locales.add((img.title, img.locale))
+        kitsune_image_title_locales.add((img.title.lower(), img.locale))
         kitsune_image_paths.add(img.file)
         if img.thumbnail:
             kitsune_image_paths.add(img.thumbnail)
@@ -35,9 +35,13 @@ def main():
 
     panic = False
     for img in data['images']:
-        title_locale = (img.title, img.locale)
+        title_locale = (img.title.lower(), img.locale)
+
         if title_locale in kitsune_image_title_locales:
-            image_collisions[title_locale] = img
+            image_collisions[title_locale] = img.title
+            old_title = img.title
+            img.title += ' TB'
+            print('> changed img "{0}" to "{1}"'.format(old_title, img.title))
 
         if img.file in kitsune_image_paths:
             print('AHHHH, duplicate file!', img.file)
@@ -48,7 +52,7 @@ def main():
             panic = True
 
     if panic:
-        print('Panicing.')
+        print('Panicking.')
         sys.exit(1)
 
     cur.execute('''
@@ -84,10 +88,9 @@ def main():
         for link in [l for l in doc['links'] if l.kind == 'Image']:
             title_locale = (link.target, link.locale)
             if title_locale in image_collisions:
-                img = image_collisions[title_locale]
-                new_title = img.title + ' TB'
-                title_changes[img.title] = new_title
-                img.title = new_title
+                old_title = image_collisions[title_locale]
+                new_title = old_title + ' TB'
+                title_changes[old_title] = new_title
 
     print(len(image_collisions.keys()), 'image collisions')
     print(title_collision_count, 'document title collisions')

@@ -48,6 +48,15 @@ class Image(object):
     def __json__(self):
         return self.args
 
+    def as_dict(self):
+        return {
+            'title': self.title,
+            'locale': self.locale,
+            'description': self.description,
+            'file': self.file,
+            'thumbnail': self.thumbnail,
+        }
+
 
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
