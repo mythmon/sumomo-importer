@@ -1,0 +1,8 @@
+/bin/
+dump.out.json
+/include/
+/lib/
+out
+sumomo.sql
+uncollide.out.json
+validate.out.json
