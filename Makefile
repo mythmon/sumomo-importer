@@ -15,5 +15,8 @@ sumomo.sql: tosql.py uncollide.out.json utils.py
 import: sumomo.sql
 	mysql --show-warnings < sumomo.sql
 
+clean:
+	rm -f dump.out.json validate.out.json uncollide.out.json sumomo.sql
 
-.PHONY: import default
+
+.PHONY: import default clean
