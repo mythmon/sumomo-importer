@@ -82,10 +82,10 @@ def doc_to_sql(doc):
                     "{keywords}",
                     CURDATE(),
                     CURDATE(),
-                    {significance},
+                    30,
                     CONCAT("Import from SUMOMO - ", CURDATE(), CURTIME()),
                     @tb_user_id,
-                    @tv_user,
+                    @tb_user_id,
                     1,
                     1,
                     CURDATE(),
@@ -129,7 +129,7 @@ def img_to_sql(img):
             VALUES ("{title}",
                     CURDATE(),
                     CURDATE(),
-                    "Imported from SUMOMO\n\n{description}",
+                    "{description}\\n\\nImported from SUMOMO",
                     "{locale}",
                     @tb_user_id,
                     "{file}",
@@ -158,8 +158,6 @@ def escape(obj):
         return str(obj)
     else:
         raise TypeError("I don't know how to escape a " + str(type(obj)))
-
-
 
 
 if __name__ == '__main__':
