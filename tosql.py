@@ -40,9 +40,16 @@ def prelude():
         INSERT INTO {sumo_db}.auth_user
             (username, first_name, last_name, email, password, is_staff,
              is_active, is_superuser, last_login, date_joined)
-            VALUES ("thunderbird_migration", "", "", "support@mozilla.org",
+            VALUES ("thunderbird", "", "", "support+thunderbird@mozilla.org",
                     "", 0, 1, 0, CURDATE(), CURDATE());
         SET @tb_user_id = LAST_INSERT_ID();
+        INSERT INTO {sumo_db}.users_profile
+            (user_id, name, public_email, bio)
+            VALUES(@tb_user_id,
+                   "Thunderbird Migration",
+                   0,
+                   "A user for the import of Thunderbird support articles.");
+
 
         SET @tb_product_id = (SELECT id
                               FROM {sumo_db}.products_product
@@ -63,7 +70,7 @@ def doc_to_sql(doc):
             VALUES ("{title}",
                     "{locale}",
                     "{slug}",
-                    "",
+                    "This page needs re-rendered.",
                     0,
                     0,
                     "",
