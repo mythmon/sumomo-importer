@@ -42,8 +42,11 @@ mysql generates.
 
 # Notes
 
-Currently, the SQL file begins with `BEGIN TRANSACTION` and ends with
-`ROLLBACK`, which means it will have no effect (in theory).
+* Currently, the SQL file begins with `BEGIN TRANSACTION` and ends with
+  `ROLLBACK`, which means it will have no effect (in theory).
 
-To change this, edit tosql.py and change the ROLLBACK line to COMMIT. **Be sure
-you want to import the data before you do this. There is no going back.**
+  To change this, edit tosql.py and change the ROLLBACK line to COMMIT. **Be sure
+  you want to import the data before you do this. There is no going back.**
+
+* This only works with Python3 right now. It could probably work on Python2,
+  but unicode is being funky.
