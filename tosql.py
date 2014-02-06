@@ -40,7 +40,7 @@ def prelude():
         INSERT INTO {sumo_db}.auth_user
             (username, first_name, last_name, email, password, is_staff,
              is_active, is_superuser, last_login, date_joined)
-            VALUES ("thunderbird", "", "", "support+thunderbird@mozilla.org",
+            VALUES ("tb_migration", "", "", "support+thunderbird@mozilla.org",
                     "", 0, 1, 0, CURDATE(), CURDATE());
         SET @tb_user_id = LAST_INSERT_ID();
         INSERT INTO {sumo_db}.users_profile
@@ -59,7 +59,7 @@ def prelude():
 
 
 def finale():
-    return '\nROLLBACK;'
+    return '\nCOMMIT;'
 
 
 def doc_to_sql(doc):
@@ -90,7 +90,7 @@ def doc_to_sql(doc):
                     CURDATE(),
                     CURDATE(),
                     30,
-                    CONCAT("Import from SUMOMO - ", CURDATE(), CURTIME()),
+                    CONCAT("Imported from SUMOMO ", CURDATE(), " ", CURTIME()),
                     @tb_user_id,
                     @tb_user_id,
                     1,
