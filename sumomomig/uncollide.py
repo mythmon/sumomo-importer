@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-import sys
-
-sys.path.append('..')
-
 from sumomomig.utils import write_out, read_in, Image, get_db, config
 
 

@@ -73,12 +73,12 @@ class MyEncoder(json.JSONEncoder):
 
 
 def write_out(data, step):
-    with open(step + '.out.json', 'w') as f:
+    with open('out.{0}.json'.format(step), 'w') as f:
         json.dump(data, f, cls=MyEncoder, indent=4, sort_keys=True)
 
 
 def read_in(from_step):
-    with open(from_step + '.out.json') as f:
+    with open('out.{0}.json'.format(from_step)) as f:
         data = json.load(f)
     data['links'] = [Link(*l) for l in data['links']]
     data['images'] = [Image(*l) for l in data['images']]

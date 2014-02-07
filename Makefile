@@ -1,22 +1,25 @@
+export PYTHONPATH = .
+
+
 default: sumomo.sql
 
-dump.out.json: dump.py utils.py
-	./dump.py
+out.dump.json: ./sumomomig/dump.py sumomomig/utils.py
+	./sumomomig/dump.py
 
-validate.out.json: validate.py dump.out.json utils.py
-	./validate.py
+out.validate.json: sumomomig/validate.py out.dump.json sumomomig/utils.py
+	./sumomomig/validate.py
 
-uncollide.out.json: uncollide.py validate.out.json utils.py
-	./uncollide.py
+out.uncollide.json: sumomomig/uncollide.py out.validate.json sumomomig/utils.py
+	./sumomomig/uncollide.py
 
-sumomo.sql: tosql.py uncollide.out.json utils.py
-	./tosql.py
+sumomo.sql: sumomomig/tosql.py out.uncollide.json sumomomig/utils.py
+	./sumomomig/tosql.py
 
 import: sumomo.sql
 	mysql --show-warnings < sumomo.sql
 
 clean:
-	rm -f dump.out.json validate.out.json uncollide.out.json sumomo.sql
+	rm -f out.dump.json out.validate.json out.uncollide.json sumomo.sql
 
 
 .PHONY: import default clean

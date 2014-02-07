@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-import sys
 from numbers import Number
 from textwrap import dedent
-
-sys.path.append('..')
 
 from sumomomig.utils import read_in, Link
 

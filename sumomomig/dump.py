@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-import sys
-sys.path.append('..')
-
 import re
 
 from sumomomig.utils import Link, Image, write_out, get_db, config
