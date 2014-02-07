@@ -5,9 +5,7 @@ sys.path.append('..')
 
 import re
 
-import pymysql
-
-from sumomomig.utils import Link, Image, write_out
+from sumomomig.utils import Link, Image, write_out, get_db, config
 
 
 def rows(cursor):
@@ -127,25 +125,23 @@ def main():
     #
     # # AND creator.id = creator_prof.user_id)
 
-
-    conn = pymysql.connect('127.0.0.1', 'root', 'Thoi2huteek1Waefeith',
-                           charset='utf8')
-    cur = conn.cursor()
+    conn, cur = get_db()
 
     # en-US
     docs, links = process_docs(
         cur,
         '''
         SELECT {select_keys}
-        FROM sumomo.wiki_document as doc
-        JOIN (sumomo.wiki_revision as rev,
-             sumomo.auth_user as creator)
+        FROM {sumomo_db}.wiki_document as doc
+        JOIN ({sumomo_db}.wiki_revision as rev,
+             {sumomo_db}.auth_user as creator)
         ON (rev.id = doc.current_revision_id
             AND creator.id = rev.creator_id)
         WHERE doc.is_archived = 0
             AND doc.locale = 'en-US'
         '''
-        .format(select_keys=', '.join('{0} as {1}'
+        .format(sumomo_db=config('db', 'sumomo_db'),
+                select_keys=', '.join('{0} as {1}'
                                       .format(key, key.replace('.', '__'))
                                       for key in select_keys)))
     output['docs'].extend(docs)
@@ -157,26 +153,29 @@ def main():
         cur,
         '''
         SELECT {select_keys}
-        FROM sumomo.wiki_document as doc
-        JOIN (sumomo.wiki_revision as rev,
-             sumomo.auth_user as creator,
-             sumomo.wiki_document as parent_doc)
+        FROM {sumomo_db}.wiki_document as doc
+        JOIN ({sumomo_db}.wiki_revision as rev,
+             {sumomo_db}.auth_user as creator,
+             {sumomo_db}.wiki_document as parent_doc)
         ON (rev.id = doc.current_revision_id
             AND creator.id = rev.creator_id
             AND doc.parent_id = parent_doc.id)
         WHERE doc.is_archived = 0
           AND doc.locale != 'en-US'
         '''
-        .format(select_keys=', '.join('{0} as {1}'
+        .format(sumomo_db=config('db', 'sumomo_db'),
+                select_keys=', '.join('{0} as {1}'
                                       .format(key, key.replace('.', '__'))
                                       for key in select_keys)))
     output['docs'].extend(docs)
     output['links'].update(links)
 
-    cur.execute('''
+    cur.execute(
+        '''
         SELECT title, locale, description, file, thumbnail
-        FROM sumomo.gallery_image;
-        ''')
+        FROM {sumomo_db}.gallery_image;
+        '''
+        .format(sumomo_db=config('db', 'sumomo_db')))
     output['images'].update(Image(*i) for i in cur)
 
     write_out(output, 'dump')

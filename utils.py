@@ -1,4 +1,7 @@
 import json
+from configparser import ConfigParser, NoOptionError, NoSectionError
+
+import pymysql
 
 
 class Link(object):
@@ -82,3 +85,21 @@ def read_in(from_step):
     for doc in data['docs']:
         doc['links'] = [Link(*l) for l in doc['links']]
     return data
+
+
+def config(section, key, memo={}):
+    if 'config' not in memo:
+        memo['config'] = ConfigParser()
+        memo['config'].read('config.ini')
+
+    conf = memo['config']
+
+    return conf.get(section, key)
+
+
+def get_db():
+    conn = pymysql.connect(config('db', 'host'), config('db', 'user'),
+                           config('db', 'pass'), charset='utf8')
+    cur = conn.cursor()
+
+    return conn, cur

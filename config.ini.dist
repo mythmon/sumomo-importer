@@ -1,0 +1,6 @@
+[db]
+host = 127.0.0.1
+user = root
+pass = lolpassword
+sumo_db = kitsune
+sumomo_db = sumomo

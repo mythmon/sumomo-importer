@@ -2,34 +2,32 @@
 
 import sys
 
-import pymysql
-
 sys.path.append('..')
 
-from sumomomig.utils import write_out, read_in, Image
+from sumomomig.utils import write_out, read_in, Image, get_db, config
 
 
 def main():
     data = read_in('validate')
 
-    conn = pymysql.connect('127.0.0.1', 'root', 'Thoi2huteek1Waefeith',
-                           charset='utf8')
-    cur = conn.cursor()
+    conn, cur = get_db()
 
-    cur.execute('''
+    cur.execute(
+        '''
         SELECT title, locale, description, file, thumbnail
-        FROM kitsune.gallery_image
-        ''')
+        FROM {sumo_db}.gallery_image
+        '''
+        .format(sumo_db=config('db', 'sumo_db')))
 
-    kitsune_images = list(Image(*t) for t in cur)
-    kitsune_image_title_locales = set()
-    kitsune_image_paths = set()
+    sumo_images = list(Image(*t) for t in cur)
+    sumo_image_title_locales = set()
+    sumo_image_paths = set()
 
-    for img in kitsune_images:
-        kitsune_image_title_locales.add((img.title.lower(), img.locale))
-        kitsune_image_paths.add(img.file)
+    for img in sumo_images:
+        sumo_image_title_locales.add((img.title.lower(), img.locale))
+        sumo_image_paths.add(img.file)
         if img.thumbnail:
-            kitsune_image_paths.add(img.thumbnail)
+            sumo_image_paths.add(img.thumbnail)
 
     image_collisions = {}
 
@@ -37,35 +35,37 @@ def main():
     for img in data['images']:
         title_locale = (img.title.lower(), img.locale)
 
-        if title_locale in kitsune_image_title_locales:
+        if title_locale in sumo_image_title_locales:
             image_collisions[title_locale] = img.title
             old_title = img.title
             img.title += ' TB'
             print('> changed img "{0}" to "{1}"'.format(old_title, img.title))
 
-        if img.file in kitsune_image_paths:
+        if img.file in sumo_image_paths:
             print('AHHHH, duplicate file!', img.file)
             panic = True
 
-        if img.thumbnail and img.thumbnail in kitsune_image_paths:
+        if img.thumbnail and img.thumbnail in sumo_image_paths:
             print('AHHHH, duplicate thumbnail!', img.thumbnail)
             panic = True
 
     if panic:
         print('Panicking.')
-        sys.exit(1)
+        # sys.exit(1)
 
-    cur.execute('''
+    cur.execute(
+        '''
         SELECT title, slug, locale
-        FROM kitsune.wiki_document
-        ''')
+        FROM {sumo_db}.wiki_document
+        '''
+        .format(sumo_db=config('db', 'sumo_db')))
 
-    kitsune_doc_titles = []
-    kitsune_doc_slugs = []
+    sumo_doc_titles = []
+    sumo_doc_slugs = []
 
     for title, slug, locale in cur:
-        kitsune_doc_titles.append((title.lower(), locale))
-        kitsune_doc_slugs.append((slug.lower(), locale))
+        sumo_doc_titles.append((title.lower(), locale))
+        sumo_doc_slugs.append((slug.lower(), locale))
 
     title_collision_count = 0
     slug_collision_count = 0
@@ -75,13 +75,13 @@ def main():
         title_locale = (doc['title'].lower(), doc['locale'])
         slug_locale = (doc['slug'].lower(), doc['locale'])
 
-        if title_locale in kitsune_doc_titles:
+        if title_locale in sumo_doc_titles:
             new_name = doc['title'] + ' TB'
             title_changes[doc['title']] = new_name
             doc['title'] = new_name
             title_collision_count += 1
 
-        if slug_locale in kitsune_doc_slugs:
+        if slug_locale in sumo_doc_slugs:
             doc['slug'] += '-tb'
             slug_collision_count += 1
 
